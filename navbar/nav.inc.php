@@ -13,7 +13,7 @@ $navItems = array(
         array('Login', 'login'),
         array('Register', 'register'),
     ),
-    'customer' => array(
+    'Customer' => array(
         array('Products', 'products'),
         array('Purchase history', 'customerHistory')
     ),
