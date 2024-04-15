@@ -78,19 +78,19 @@
 
 
                         <div class="requirements mb-2" id="passwordlength" style="color: red">
-                            <small>Wachtwoord moet minimaal 8 karakters zijn</small>
+                            <small>Password must have a minimum of 8 characters.</small>
                         </div>
                         <div class="requirements mb-2" id="passwordCapitalLetter" style="color: red">
-                            <small>Wachtwoord moet 1 grote letter bevatten</small>
+                            <small>Password must include 1 capital letter.</small>
                         </div>
                         <div class="requirements mb-2" id="passwordSmallLetter" style="color: red">
-                            <small>Wachtwoord moet minimaal 1 kleine letter bevatten</small>
+                            <small>Password must include 1 lowercase letter.</small>
                         </div>
                         <div class="requirements mb-2" id="passwordNumber" style="color: red">
-                            <small>Wachtwoord moet 1 cijfer bevatten</small>
+                            <small>Password must include 1 number.</small>
                         </div>
                         <div class="requirements mb-2" id="passwordSpecialCharacter" style="color: red">
-                            <small>Wachtwoord moet minimaal 1 speciale karakter bevatten</small>
+                            <small>Password must include 1 special character.</small>
                         </div>
                         <button type="submit" id="submitButton" class="btn btn-dark">Register now!</button>
                     </form>
