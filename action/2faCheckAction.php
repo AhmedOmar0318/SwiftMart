@@ -1,6 +1,7 @@
 <?php
 require '../../private/connSwiftMart.php';
-require '../mailer/emailConfig.php';
+require '../class/User.class.php';
+$emailConfig = '../mailer/emailConfig.php';
 session_start();
 
 $verificationCode = $_POST['verificationCode'];
@@ -16,12 +17,11 @@ if ($getUserData->rowCount() <= 0 ||
     $token !== $userData['token'] ||
     $userData['tokenExpiresAt'] < $currentTime ||
     $verificationCode != $_SESSION['verificationCode']) {
-    $_SESSION['error'] = 'Token expired or not found. Please submit another email confirm request.';
+    $_SESSION['error'] = 'Verification code or token expired or not found. Please submit another email confirm request.';
     header("Location: ../index.php?page=confirmEmail&token={$token}");
     exit();
 }
 
-$_SESSION['userId'] = $userData['userId'];
-$_SESSION['role'] = $userData['role'];
-header('Location: ../index.php?page=dashboard');
-exit();
+$emailManager = new EmailManager($emailConfig);
+$succesful2fa = new DatabaseManager($emailManager, $conn);
+$succesful2fa->update2fa($email, $userData['userId'], $userData['role']);

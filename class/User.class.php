@@ -28,8 +28,8 @@ class DatabaseManager
         $addUserQuery->execute(array(':email' => $userData['email'], ':password' => $password, ':role' => $role, ':token' => $hashedToken, ':tokenExpiresAt' => $token_expiry));
         $userId = $this->conn->lastInsertId();
 
-        $addUserDataQuery = $this->conn->prepare("INSERT INTO userdata(userId,firstName,lastName,phoneNumber,dateOfBirth,adress,houseNumber,postalCode,city)
-                                                    VALUES(:userId,:firstName,:lastName,:phoneNumber,:dateOfBirth,:adress,:houseNumber,:postalCode,:city) ");
+        $addUserDataQuery = $this->conn->prepare("INSERT INTO userdata(userId,firstName,lastName,phoneNumber,dateOfBirth,adress,houseNumber,houseNumberAddition,postalCode,city)
+                                                    VALUES(:userId,:firstName,:lastName,:phoneNumber,:dateOfBirth,:adress,:houseNumber,:houseNumberAddition,:postalCode,:city)");
         $addUserDataQuery->execute(array(
             ':userId' => $userId,
             ':firstName' => $userData['firstName'],
@@ -38,12 +38,24 @@ class DatabaseManager
             ':dateOfBirth' => $userData['dateOfBirth'],
             ':adress' => $userData['adress'],
             ':houseNumber' => $userData['houseNumber'],
+            ':houseNumberAddition' => $userData['houseNumberAddition'],
             ':postalCode' => $userData['postalCode'],
-            ':city' => $userData['city'],
+            ':city' => $userData['city']
         ));
-        $this->emailManager->sendMail($userData['email'], $hashedToken);
+        $this->emailManager->sendMail2fa($userData['email'], $hashedToken);
         unset($_SESSION['data']);
         header('Location: ../index.php?page=confirmEmailSent');
+        exit();
+    }
+
+    public function update2fa($userEmail, $userId, $userRole)
+    {
+        $updateUser2fa = $this->conn->prepare("UPDATE user SET token = null, tokenExpiresAt = null, confirmed2FA = 'Y' WHERE email = :email");
+        $updateUser2fa->execute(array(':email' => $userEmail));
+
+        $_SESSION['userId'] = $userId;
+        $_SESSION['role'] = $userRole;
+        header('Location: ../index.php?page=dashboard');
         exit();
     }
 }
@@ -91,7 +103,7 @@ class EmailManager
         $this->emailConifg = require $emailConifg;
     }
 
-    public function sendMail($userEmail, $userToken)
+    public function sendMail2fa($userEmail, $userToken)
     {
         $_SESSION['email2fa'] = $userEmail;
         $verificationCode = mt_rand(100000, 999999);

@@ -31,10 +31,16 @@
                             } ?>" required>
                         </div>
                         <div class="mb-3">
-                            <input type="text" name="houseNumber" class="form-control" id="houseNumberInput"
+                            <input type="number" name="houseNumber" class="form-control" id="houseNumberInput"
                                    placeholder="Housenumber" value="<?php if (isset($_SESSION['data'])) {
                                 echo $_SESSION['data']['houseNumber'];
                             } ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="houseNumberAddition" class="form-control" id="houseNumberInput"
+                                   placeholder="Housenumber addition (Optional)" value="<?php if (isset($_SESSION['data'])) {
+                                echo $_SESSION['data']['houseNumberAddition'];
+                            } ?>">
                         </div>
                         <div class="mb-3">
                             <input type="text" name="postalCode" class="form-control" id="postalCodeInput"
@@ -49,7 +55,7 @@
                             } ?>" required>
                         </div>
                         <div class="mb-3">
-                            <input type="text" name="phoneNumber" class="form-control" id="phoneNumberInput"
+                            <input type="number" name="phoneNumber" class="form-control" id="phoneNumberInput"
                                    placeholder="Phonenumber" value="<?php if (isset($_SESSION['data'])) {
                                 echo $_SESSION['data']['phoneNumber'];
                             } ?>" required>
