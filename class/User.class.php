@@ -22,10 +22,10 @@ class DatabaseManager
         $role = 'Customer';
         $token = bin2hex(random_bytes(16));
         $hashedToken = hash("sha256", $token);
-        $token_expiry = date("Y-m-d H:i:s", time() + 60 * 15);
+        $tokenExpiresAt = date("Y-m-d H:i:s", time() + 60 * 15);
 
         $addUserQuery = $this->conn->prepare("INSERT INTO user(email,password,role,token,tokenExpiresAt) VALUES(:email,:password,:role,:token,:tokenExpiresAt) ");
-        $addUserQuery->execute(array(':email' => $userData['email'], ':password' => $password, ':role' => $role, ':token' => $hashedToken, ':tokenExpiresAt' => $token_expiry));
+        $addUserQuery->execute(array(':email' => $userData['email'], ':password' => $password, ':role' => $role, ':token' => $hashedToken, ':tokenExpiresAt' => $tokenExpiresAt));
         $userId = $this->conn->lastInsertId();
 
         $addUserDataQuery = $this->conn->prepare("INSERT INTO userdata(userId,firstName,lastName,phoneNumber,dateOfBirth,adress,houseNumber,houseNumberAddition,postalCode,city)
@@ -44,7 +44,8 @@ class DatabaseManager
         ));
         $this->emailManager->sendMail2fa($userData['email'], $hashedToken);
         unset($_SESSION['data']);
-        header('Location: ../index.php?page=confirmEmailSent');
+        $_SESSION['checkInbox'] = 'email2fa';
+        header('Location: ../index.php?page=checkInbox');
         exit();
     }
 
@@ -56,6 +57,16 @@ class DatabaseManager
         $_SESSION['userId'] = $userId;
         $_SESSION['role'] = $userRole;
         header('Location: ../index.php?page=dashboard');
+        exit();
+    }
+
+    public function resetUserPassword($userEmail, $userPassword)
+    {
+        $password = password_hash($userPassword, PASSWORD_DEFAULT);
+        $updateUserPassword = $this->conn->prepare("UPDATE user SET password = :password,token = null,tokenExpiresAt = null WHERE email = :email");
+        $updateUserPassword->execute(array(':password' => $password, ':email' => $userEmail));
+
+        header('Location: ../index.php?page=login');
         exit();
     }
 }
@@ -116,7 +127,7 @@ class EmailManager
         $this->emailConifg->Body = <<<END
    <div class="container">
     <h1>Dear user,</h1>
- <p>Click the button below to submity your login code:</p>
+ <p>Click the button below to submit your login code:</p>
     <p>Your unique code is: $verificationCode</p>
     <a href="http://localhost/SwiftMart/index.php?page=confirmEmail&token=$userToken" class="button">Confirm email</a>
     <p>If the button doesn't work, copy and paste the following link into your browser:</p>
@@ -131,6 +142,36 @@ END;
             echo "Message could not be sent. Mailer Error: $this->emailConifg->ErrorInfo";
         }
     }
+
+
+    public function sendMailPassword($userEmail, $userToken)
+    {
+        $_SESSION['emailPasswordReset'] = $userEmail;
+
+        $this->emailConifg->SMTPDebug = 0;
+        $this->emailConifg->setFrom('noreply@swiftmart.com', 'SwiftMart');
+        $this->emailConifg->addAddress($userEmail);
+        $this->emailConifg->Subject = 'Confirm Email';
+        $this->emailConifg->Body = <<<END
+   <div class="container">
+    <h1>Dear user,</h1>
+ <p>Click the link below to reset your password:</p>
+
+    <a href="http://localhost/SwiftMart/index.php?page=resetPassword&token=$userToken" class="button">Reset password</a>
+    <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+    <p>href="http://localhost/SwiftMart/index.php?page=resetPassword&token=$userToken</p>
+    <p>Best regards,<br>SwiftMart</p>
+</div>
+END;
+        try {
+            $this->emailConifg->send();
+
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: $this->emailConifg->ErrorInfo";
+        }
+    }
+
+
 }
 
 class LoginManager
@@ -141,6 +182,7 @@ class LoginManager
     {
         $this->conn = $conn;
     }
+
     public function authenticateUser($userEmail, $userPassword)
     {
         $checkUser = $this->conn->prepare("SELECT userId,password,email,role FROM user WHERE email = :email");

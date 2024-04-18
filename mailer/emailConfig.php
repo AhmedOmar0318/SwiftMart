@@ -24,7 +24,7 @@ $mail->Password = $emailPassword;
 $mail->isHtml(true);
 
 return $mail;
-?>
+
 
 
 

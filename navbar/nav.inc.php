@@ -39,7 +39,7 @@ $navItems = array(
                 <?php }
                 if (isset($_SESSION['userId'])) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="action/logout.php">Log out</a>
+                        <a class="nav-link" href="action/logoutAction.php">Log out</a>
                     </li>
                 <?php } ?>
             </ul>

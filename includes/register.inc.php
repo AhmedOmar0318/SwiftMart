@@ -83,19 +83,19 @@
                         </div>
 
 
-                        <div class="requirements mb-2" id="passwordlength" style="color: red">
+                        <div class="requirements mb-2" id="passwordlength" style="color: darkorange">
                             <small>Password must have a minimum of 8 characters.</small>
                         </div>
-                        <div class="requirements mb-2" id="passwordCapitalLetter" style="color: red">
+                        <div class="requirements mb-2" id="passwordCapitalLetter" style="color: darkorange">
                             <small>Password must include 1 capital letter.</small>
                         </div>
-                        <div class="requirements mb-2" id="passwordSmallLetter" style="color: red">
+                        <div class="requirements mb-2" id="passwordSmallLetter" style="color: darkorange">
                             <small>Password must include 1 lowercase letter.</small>
                         </div>
-                        <div class="requirements mb-2" id="passwordNumber" style="color: red">
+                        <div class="requirements mb-2" id="passwordNumber" style="color: darkorange">
                             <small>Password must include 1 number.</small>
                         </div>
-                        <div class="requirements mb-2" id="passwordSpecialCharacter" style="color: red">
+                        <div class="requirements mb-2" id="passwordSpecialCharacter" style="color: darkorange">
                             <small>Password must include 1 special character.</small>
                         </div>
                         <button type="submit" id="submitButton" class="btn btn-dark">Register now!</button>
@@ -122,11 +122,11 @@
         let passwordValidation = [];
 
         for (let i = 0; i < requirements.length; i++) {
-            requirements[i].style.color = passwordRequirements[i] ? 'green' : 'red';
+            requirements[i].style.color = passwordRequirements[i] ? 'green' : 'darkorange';
             passwordValidation.push(requirements[i].style.color)
         }
 
-        if (passwordValidation.includes('red')) {
+        if (passwordValidation.includes('darkorange')) {
             submitButton.disabled = true;
         } else {
             submitButton.disabled = false;

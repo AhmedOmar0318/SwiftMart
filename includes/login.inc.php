@@ -20,11 +20,10 @@
                                    placeholder="Password" required>
                         </div>
                         <button type="submit" id="submitButton" class="btn btn-dark">Login</button>
+                        <a href="index.php?page=resetPasswordMail" class="btn btn-link">Forgot Password?</a>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-

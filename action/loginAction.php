@@ -4,11 +4,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require '../../private/connSwiftMart.php';
     require '../class/User.class.php';
 
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
     $authUser = new LoginManager($conn);
-    $authUser->authenticateUser($email, $password);
+    $authUser->authenticateUser($_POST['email'], $_POST['password']);
 } else {
     header('Location: ../index.php?page=login');
     exit();
