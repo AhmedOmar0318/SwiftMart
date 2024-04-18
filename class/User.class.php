@@ -70,7 +70,6 @@ class DatabaseManager
         exit();
     }
 }
-
 class RegistrationManager
 {
     private $databaseManager;
