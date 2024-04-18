@@ -133,37 +133,35 @@ END;
     }
 }
 
-class User
+class LoginManager
 {
-    private $userId;
+    private $conn;
 
-
-    public function __construct($userId)
+    public function __construct($conn)
     {
-        $this->userId = $userId;
+        $this->conn = $conn;
     }
-
-
-    public function setUserInfo($userInfo)
+    public function authenticateUser($userEmail, $userPassword)
     {
+        $checkUser = $this->conn->prepare("SELECT userId,password,email,role FROM user WHERE email = :email");
+        $checkUser->execute(array(':email' => $userEmail));
 
-
+        if ($checkUser->rowCount() > 0) {
+            $userData = $checkUser->fetch(PDO::FETCH_ASSOC);
+            if (password_verify($userPassword, $userData['password'])) {
+                $_SESSION['userId'] = $userData['userId'];
+                $_SESSION['role'] = $userData['role'];
+                header('Location: ../index.php?page=dashboard');
+            } else {
+                $_SESSION['error'] = "Email or password is incorrect. ";
+                header('Location: ../index.php?page=login');
+                exit();
+            }
+        } else {
+            $_SESSION['error'] = "Email or password is incorrect. ";
+            header('Location: ../index.php?page=login');
+            exit();
+        }
     }
-
-
-    public function updateUser($userInfo)
-    {
-        $this->userData = $newUserData;
-
-        $databaseManager = new DatabaseManager();
-        $databaseManager->updateUserTable($this->userData);
-    }
-
-    public function deleteUser()
-    {
-
-    }
-
-    // Other methods...
 }
 
