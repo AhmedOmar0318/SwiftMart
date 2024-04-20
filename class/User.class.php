@@ -229,7 +229,7 @@ class LoginManager
         } else {
             $logger = new Logger('Attempt login.');
             $logger->pushHandler(new ActivityLogger($this->conn));
-            $logger->info('Failed. Email incorrect.');
+            $logger->info('Failed. Given e-mail: ' . $userEmail);
 
             $_SESSION['error'] = "Email or password is incorrect. ";
             header('Location: ../index.php?page=login');
