@@ -1,4 +1,8 @@
 <?php
+require '../vendor/autoload.php';
+require '../class/ActivityLogger.class.php';
+
+use Monolog\Logger;
 
 class DatabaseManager
 {
@@ -27,6 +31,10 @@ class DatabaseManager
         $addUserQuery = $this->conn->prepare("INSERT INTO user(email,password,role,token,tokenExpiresAt) VALUES(:email,:password,:role,:token,:tokenExpiresAt) ");
         $addUserQuery->execute(array(':email' => $userData['email'], ':password' => $password, ':role' => $role, ':token' => $hashedToken, ':tokenExpiresAt' => $tokenExpiresAt));
         $userId = $this->conn->lastInsertId();
+
+        $logger = new Logger('Register Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
+        $logger->info('Successful. User ID: ' . $userId);
 
         $addUserDataQuery = $this->conn->prepare("INSERT INTO userdata(userId,firstName,lastName,phoneNumber,dateOfBirth,adress,houseNumber,houseNumberAddition,postalCode,city)
                                                     VALUES(:userId,:firstName,:lastName,:phoneNumber,:dateOfBirth,:adress,:houseNumber,:houseNumberAddition,:postalCode,:city)");
@@ -62,14 +70,23 @@ class DatabaseManager
 
     public function resetUserPassword($userEmail, $userPassword)
     {
+        $getUserId = $this->conn->prepare("SELECT userId FROM user WHERE email = :email");
+        $getUserId->execute(array(':email' => $userEmail));
+        $userId = $getUserId->fetchColumn();
+
         $password = password_hash($userPassword, PASSWORD_DEFAULT);
         $updateUserPassword = $this->conn->prepare("UPDATE user SET password = :password,token = null,tokenExpiresAt = null WHERE email = :email");
         $updateUserPassword->execute(array(':password' => $password, ':email' => $userEmail));
+
+        $logger = new Logger('2FA Attempt.');
+        $logger->pushHandler(new ActivityLogger($conn));
+        $logger->info('Successful. User ID: .' . $userId);
 
         header('Location: ../index.php?page=login');
         exit();
     }
 }
+
 class RegistrationManager
 {
     private $databaseManager;
@@ -82,7 +99,7 @@ class RegistrationManager
     public function registerUser($userInfo)
     {
         if (!$this->emailExists($userInfo['email'])) {
-            $_SESSION['error'] = 'This email is already in use.';
+            $_SESSION['error'] = 'This email is not available.';
             $_SESSION['data'] = $userInfo;
             header('Location: ../index.php?page=register');
             exit();
@@ -169,8 +186,6 @@ END;
             echo "Message could not be sent. Mailer Error: $this->emailConifg->ErrorInfo";
         }
     }
-
-
 }
 
 class LoginManager
@@ -184,6 +199,8 @@ class LoginManager
 
     public function authenticateUser($userEmail, $userPassword)
     {
+
+
         $checkUser = $this->conn->prepare("SELECT userId,password,email,role FROM user WHERE email = :email");
         $checkUser->execute(array(':email' => $userEmail));
 
@@ -192,13 +209,28 @@ class LoginManager
             if (password_verify($userPassword, $userData['password'])) {
                 $_SESSION['userId'] = $userData['userId'];
                 $_SESSION['role'] = $userData['role'];
+
+
+                $logger = new Logger('Attempt login.');
+                $logger->pushHandler(new ActivityLogger($this->conn));
+                $logger->info('Successful. User ID: ' . $userData['userId']);
+
                 header('Location: ../index.php?page=dashboard');
+                exit();
             } else {
+                $logger = new Logger('Attempt login.');
+                $logger->pushHandler(new ActivityLogger($this->conn));
+                $logger->info('Failed. Password incorrect. User ID: ' . $userData['userId']);
+
                 $_SESSION['error'] = "Email or password is incorrect. ";
                 header('Location: ../index.php?page=login');
                 exit();
             }
         } else {
+            $logger = new Logger('Attempt login.');
+            $logger->pushHandler(new ActivityLogger($this->conn));
+            $logger->info('Failed. Email incorrect.');
+
             $_SESSION['error'] = "Email or password is incorrect. ";
             header('Location: ../index.php?page=login');
             exit();
