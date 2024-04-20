@@ -1,7 +1,7 @@
 <?php
 include "../../private/connSwiftMart.php";
 require '../vendor/autoload.php';
-require_once('logger.php');
+require_once('../class/ActivityLogger.class.php');
 
 use Monolog\Logger;
 
