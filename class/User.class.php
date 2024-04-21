@@ -57,6 +57,41 @@ class DatabaseManager
         exit();
     }
 
+    public function editUser($userData)
+    {
+        $updateUserProfile = $this->conn->prepare("
+    UPDATE userdata 
+    SET 
+        firstName = :firstName, 
+        lastName = :lastName,
+        adress = :adress,
+        houseNumber = :houseNumber,
+        houseNumberAddition = :houseNumberAddition,
+        postalCode = :postalCode,
+        city = :city,
+        phoneNumber = :phoneNumber 
+    WHERE 
+        userId = :userId
+");
+        $updateUserProfile->execute(array(
+            ':firstName' => $userData['firstName'],
+            ':lastName' => $userData['lastName'],
+            ':adress' => $userData['adress'],
+            ':houseNumber' => $userData['houseNumber'],
+            ':houseNumberAddition' => $userData['houseNumberAddition'],
+            ':postalCode' => $userData['postalCode'],
+            ':city' => $userData['city'],
+            ':phoneNumber' => $userData['phoneNumber'],
+            ':userId' => $userData['userId']));
+
+        $logger = new Logger('Edit User Profile Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
+        $logger->info('Successful. User ID: ' . $userData['userId']);
+
+        header("Location: ../index.php?page=userProfile&userId={$userData['userId']}");
+        exit();
+    }
+
     public function update2fa($userEmail, $userId, $userRole)
     {
         $updateUser2fa = $this->conn->prepare("UPDATE user SET token = null, tokenExpiresAt = null, confirmed2FA = 'Y' WHERE email = :email");
@@ -211,14 +246,14 @@ class LoginManager
                 $_SESSION['role'] = $userData['role'];
 
 
-                $logger = new Logger('Attempt login.');
+                $logger = new Logger('Login Attempt.');
                 $logger->pushHandler(new ActivityLogger($this->conn));
                 $logger->info('Successful. User ID: ' . $userData['userId']);
 
                 header('Location: ../index.php?page=dashboard');
                 exit();
             } else {
-                $logger = new Logger('Attempt login.');
+                $logger = new Logger('Login Attempt.');
                 $logger->pushHandler(new ActivityLogger($this->conn));
                 $logger->info('Failed. Password incorrect. User ID: ' . $userData['userId']);
 
@@ -227,7 +262,7 @@ class LoginManager
                 exit();
             }
         } else {
-            $logger = new Logger('Attempt login.');
+            $logger = new Logger('Login Attempt.');
             $logger->pushHandler(new ActivityLogger($this->conn));
             $logger->info('Failed. Given e-mail: ' . $userEmail);
 

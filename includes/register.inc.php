@@ -61,7 +61,7 @@
                             } ?>" required>
                         </div>
                         <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label">Date of birth</label>
+                            <label class="form-label">Date of birth</label>
                             <input type="date" name="dateOfBirth" class="form-control" id="dateOfBirthInput" required>
                         </div>
                         <div class="mb-3">

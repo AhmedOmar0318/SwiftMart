@@ -16,7 +16,7 @@ $navItems = array(
     'Customer' => array(
         array('Products', 'products'),
         array('Purchase history', 'customerHistory'),
-        array('Profile', 'profile')
+        array('Profile', 'userProfile')
     ),
     'worker' => array(
         array('All products', 'products'),
