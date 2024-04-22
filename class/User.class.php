@@ -20,7 +20,7 @@ class DatabaseManager
         return $this->conn;
     }
 
-    public function addUser($userData)
+    public function addCutomer($userData)
     {
         $password = password_hash($userData['password'], PASSWORD_DEFAULT);
         $role = 'Customer';
@@ -92,6 +92,51 @@ class DatabaseManager
         exit();
     }
 
+    public function addWorker($userData)
+    {
+        $role = 'Worker';
+        $verified = 'Y';
+
+        $addUser = $this->conn->prepare("INSERT INTO user(email,password,role,confirmed2FA) VALUES (:email,:password,:role,:confirmed2FA) ");
+        $addUser->execute(array('email' => $userData['email'], 'password' => $userData['password'], 'role' => $role, 'confirmed2FA' => $verified));
+        $workerUserId = $this->conn->lastInsertId();
+
+        $logger = new Logger('Add Worker Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
+        $logger->info("Successful. Admin ({$_SESSION['userId']}) Added Worker: User ID: $workerUserId ");
+
+        header("Location: ../index.php?page=workerOverview");
+        exit();
+    }
+
+    public function editWorker($userData)
+    {
+        $updateUserProfile = $this->conn->prepare("UPDATE user SET email = :email");
+        $updateUserProfile->execute(array(':email' => $userData['email']));
+
+        $logger = new Logger('Edit Worker Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
+        $logger->info("Successful. Admin ({$_SESSION['userId']}) Updated Worker: User ID: {$userData['userId']} ");
+
+        header("Location: ../index.php?page=workerOverview");
+        exit();
+    }
+
+    public function deleteWorker($userData)
+    {
+        $currentDateTime = date("Y-m-d H:i:s");
+        $deleteUser = $this->conn->prepare("UPDATE user SET deletedOn = :currentDateTime WHERE userId = :userId");
+        $deleteUser->execute(array('currentDateTime' => $currentDateTime, 'userId' => $userData['userId']));
+
+
+        $logger = new Logger('Delete Worker Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
+        $logger->info("Successful. Admin ({$_SESSION['userId']}) Deleted Worker: User ID: {$userData['userId']} ");
+
+        header("Location: ../index.php?page=workerOverview");
+        exit();
+    }
+
     public function update2fa($userEmail, $userId, $userRole)
     {
         $updateUser2fa = $this->conn->prepare("UPDATE user SET token = null, tokenExpiresAt = null, confirmed2FA = 'Y' WHERE email = :email");
@@ -139,7 +184,7 @@ class RegistrationManager
             header('Location: ../index.php?page=register');
             exit();
         }
-        $this->databaseManager->addUser($userInfo);
+        $this->databaseManager->addCutomer($userInfo);
 
         return true;
     }
@@ -236,35 +281,45 @@ class LoginManager
     {
 
 
-        $checkUser = $this->conn->prepare("SELECT userId,password,email,role FROM user WHERE email = :email");
+        $checkUser = $this->conn->prepare("SELECT confirmed2FA,userId,password,email,role FROM user WHERE email = :email");
         $checkUser->execute(array(':email' => $userEmail));
 
         if ($checkUser->rowCount() > 0) {
             $userData = $checkUser->fetch(PDO::FETCH_ASSOC);
-            if (password_verify($userPassword, $userData['password'])) {
-                $_SESSION['userId'] = $userData['userId'];
-                $_SESSION['role'] = $userData['role'];
+            if ($userData['confirmed2FA'] == 'Y') {
+                if (password_verify($userPassword, $userData['password'])) {
+                    $_SESSION['userId'] = $userData['userId'];
+                    $_SESSION['role'] = $userData['role'];
 
+                    $logger = new Logger('Login Attempt.');
+                    $logger->pushHandler(new ActivityLogger($this->conn));
+                    $logger->info('Successful. User ID: ' . $userData['userId']);
 
-                $logger = new Logger('Login Attempt.');
-                $logger->pushHandler(new ActivityLogger($this->conn));
-                $logger->info('Successful. User ID: ' . $userData['userId']);
+                    header('Location: ../index.php?page=dashboard');
+                    exit();
+                } else {
+                    $logger = new Logger('Login Attempt.');
+                    $logger->pushHandler(new ActivityLogger($this->conn));
+                    $logger->info('Failed. Password incorrect. User ID: ' . $userData['userId']);
 
-                header('Location: ../index.php?page=dashboard');
-                exit();
+                    $_SESSION['error'] = "Email or password is incorrect. ";
+                    header('Location: ../index.php?page=login');
+                    exit();
+                }
             } else {
                 $logger = new Logger('Login Attempt.');
                 $logger->pushHandler(new ActivityLogger($this->conn));
-                $logger->info('Failed. Password incorrect. User ID: ' . $userData['userId']);
+                $logger->info('Failed. User not verified. User ID: ' . $userData['userId']);
 
                 $_SESSION['error'] = "Email or password is incorrect. ";
                 header('Location: ../index.php?page=login');
                 exit();
             }
+
         } else {
             $logger = new Logger('Login Attempt.');
             $logger->pushHandler(new ActivityLogger($this->conn));
-            $logger->info('Failed. Given e-mail: ' . $userEmail);
+            $logger->info('Failed. User not found. Given e-mail: ' . $userEmail);
 
             $_SESSION['error'] = "Email or password is incorrect. ";
             header('Location: ../index.php?page=login');

@@ -18,12 +18,12 @@ $navItems = array(
         array('Purchase history', 'customerHistory'),
         array('Profile', 'userProfile')
     ),
-    'worker' => array(
+    'Worker' => array(
         array('All products', 'products'),
     ),
-    'admin' => array(
+    'Admin' => array(
         array('All products', 'products'),
-        array('All workers', 'manageWorker'),
+        array('All workers', 'workerOverview'),
     )
 ) ?>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
