@@ -92,51 +92,6 @@ class DatabaseManager
         exit();
     }
 
-    public function addWorker($userData)
-    {
-        $role = 'Worker';
-        $verified = 'Y';
-
-        $addUser = $this->conn->prepare("INSERT INTO user(email,password,role,confirmed2FA) VALUES (:email,:password,:role,:confirmed2FA) ");
-        $addUser->execute(array('email' => $userData['email'], 'password' => $userData['password'], 'role' => $role, 'confirmed2FA' => $verified));
-        $workerUserId = $this->conn->lastInsertId();
-
-        $logger = new Logger('Add Worker Attempt.');
-        $logger->pushHandler(new ActivityLogger($this->conn));
-        $logger->info("Successful. Admin ({$_SESSION['userId']}) Added Worker: User ID: $workerUserId ");
-
-        header("Location: ../index.php?page=workerOverview");
-        exit();
-    }
-
-    public function editWorker($userData)
-    {
-        $updateUserProfile = $this->conn->prepare("UPDATE user SET email = :email");
-        $updateUserProfile->execute(array(':email' => $userData['email']));
-
-        $logger = new Logger('Edit Worker Attempt.');
-        $logger->pushHandler(new ActivityLogger($this->conn));
-        $logger->info("Successful. Admin ({$_SESSION['userId']}) Updated Worker: User ID: {$userData['userId']} ");
-
-        header("Location: ../index.php?page=workerOverview");
-        exit();
-    }
-
-    public function deleteWorker($userData)
-    {
-        $currentDateTime = date("Y-m-d H:i:s");
-        $deleteUser = $this->conn->prepare("UPDATE user SET deletedOn = :currentDateTime WHERE userId = :userId");
-        $deleteUser->execute(array('currentDateTime' => $currentDateTime, 'userId' => $userData['userId']));
-
-
-        $logger = new Logger('Delete Worker Attempt.');
-        $logger->pushHandler(new ActivityLogger($this->conn));
-        $logger->info("Successful. Admin ({$_SESSION['userId']}) Deleted Worker: User ID: {$userData['userId']} ");
-
-        header("Location: ../index.php?page=workerOverview");
-        exit();
-    }
-
     public function update2fa($userEmail, $userId, $userRole)
     {
         $updateUser2fa = $this->conn->prepare("UPDATE user SET token = null, tokenExpiresAt = null, confirmed2FA = 'Y' WHERE email = :email");

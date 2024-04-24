@@ -1,29 +1,34 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title text-center mb-4">Login</h5>
-                    <?php if (isset($_SESSION['error'])) { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <?php echo $_SESSION['error']; ?>
-                        </div>
-                        <?php unset($_SESSION['error']); ?>
-                    <?php } ?>
-                    <form action="action/loginAction.php" method="post">
-                        <div class="mb-3">
-                            <input type="text" name="email" class="form-control" id="emailInput"
-                                   placeholder="Email" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" name="password" class="form-control" id="passwordInput"
-                                   placeholder="Password" required>
-                        </div>
-                        <button type="submit" id="submitButton" class="btn btn-dark">Login</button>
-                        <a href="index.php?page=resetPasswordMail" class="btn btn-link">Forgot Password?</a>
-                    </form>
+
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <div class="text-center lg:text-left">
+            <h1 class="text-5xl font-bold">Login now!</h1>
+            <p class="py-6">Login and start shoping!</p>
+        </div>
+        <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form class="card-body">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input type="email" placeholder="email" class="input input-bordered" required />
                 </div>
-            </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <input type="password" placeholder="******" class="input input-bordered" required />
+                    <label class="label">
+                        <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+                    </label>
+                    <label class="label">
+                        <a href="#" class="label-text-alt link link-hover">No Account? Register here!</a>
+                    </label>
+                </div>
+                <div class="form-control mt-6">
+                    <button class="btn btn-primary">Login</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
