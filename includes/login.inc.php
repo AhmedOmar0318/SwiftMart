@@ -1,4 +1,3 @@
-
 <div class="hero min-h-screen bg-base-200">
     <div class="hero-content flex-col lg:flex-row-reverse">
         <div class="text-center lg:text-left">
@@ -31,10 +30,10 @@
                     </label>
                     <input type="password" placeholder="******" name="password" class="input input-bordered" required />
                     <label class="label">
-                        <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+                        <a href="index.php?page=resetPasswordMail" class="label-text-alt link link-hover">Forgot password?</a>
                     </label>
                     <label class="label">
-                        <a href="#" class="label-text-alt link link-hover">No Account? Register here!</a>
+                        <a href="index.php?page=register" class="label-text-alt link link-hover">No Account? Register here!</a>
                     </label>
                 </div>
                 <div class="form-control mt-6">

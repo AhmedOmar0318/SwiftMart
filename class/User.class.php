@@ -113,8 +113,8 @@ class DatabaseManager
         $updateUserPassword = $this->conn->prepare("UPDATE user SET password = :password,token = null,tokenExpiresAt = null WHERE email = :email");
         $updateUserPassword->execute(array(':password' => $password, ':email' => $userEmail));
 
-        $logger = new Logger('2FA Attempt.');
-        $logger->pushHandler(new ActivityLogger($conn));
+        $logger = new Logger('Password Reset Attempt.');
+        $logger->pushHandler(new ActivityLogger($this->conn));
         $logger->info('Successful. User ID: .' . $userId);
 
         header('Location: ../index.php?page=login');

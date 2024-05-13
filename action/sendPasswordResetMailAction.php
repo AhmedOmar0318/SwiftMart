@@ -1,9 +1,14 @@
 <?php
+require '../vendor/autoload.php';
+
+use Monolog\Logger;
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
     require '../class/User.class.php';
     require '../../private/connSwiftMart.php';
     $emailConfig = '../mailer/emailConfig.php';
+
 
     $checkEmail = $conn->prepare("SELECT userId,email FROM user WHERE email = :email");
     $checkEmail->execute(array(":email" => $_POST["email"]));
