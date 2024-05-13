@@ -1,6 +1,10 @@
 <?php
 $getProducts = $conn->prepare("SELECT * FROM product");
 $getProducts->execute();
+
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = array();
+}
 ?>
 
 <div class="bg-base-200">
